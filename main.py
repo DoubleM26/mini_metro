@@ -8,86 +8,74 @@ from itertools import product
 pygame.init()
 clock = pygame.time.Clock()
 
-WINDOW_SIZE = (1920, 1080)
+WINDOW_SIZE = (1080, 720)
+
+
+class River(pygame.sprite.Sprite):
+    def __init__(self, direction, group, x, y):
+        super().__init__(group)
+        if direction == 'basic':
+            self.image = pygame.image.load("data/river.png")
+        elif direction == 'bottom':
+            self.image = pygame.image.load('data/river_right.png')
+        elif direction == 'top':
+            self.image = pygame.image.load('data/river_top.png')
+        elif direction == 'left':
+            self.image = pygame.image.load('data/river_left.png')
+        elif direction == 'down':
+            self.image = pygame.image.load('data/river_down.png')
+        elif direction == 'angle':
+            self.image = pygame.image.load('data/angle.png')
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
 
 
 class Board:
-    def __init__(self, width, height, position=(0, 0), cell_size=48):
-        self.width = width
-        self.height = height
-        self.pos = position
-        self.cs = cell_size
-        self.state = [[0] * height for _ in range(width)]
+    def __init__(self, map_file):
+        self.board = list()
+        with open(map_file) as f:
+            text = f.read()
+        for el in text.split('\n'):
+            self.board.append(list(el))
 
-    def get_cell(self, mouse_pos):
-        result_x = (mouse_pos[0] - self.pos[0]) // self.cs
-        result_y = (mouse_pos[1] - self.pos[1]) // self.cs
-        if result_x > self.width or result_x < 0 or result_y > self.width or result_y < 0:
-            return None
-        return result_x, result_y
+    def load_map(self, group):
+        for i in range(len(self.board)):
+            row = self.board[i]
+            for j in range(len(row)):
+                tile = row[j]
+                if tile == 'r':
+                    River('basic', group, j * 36, i * 36)
+                elif tile == 'a':
+                    River('bottom', group, j * 36, i * 36)
+                elif tile == 't':
+                    River('top', group, j * 36, i * 36)
+                elif tile == 'l':
+                    River('left', group, j * 36, i * 36)
+                elif tile == 'd':
+                    River('down', group, j * 36, i * 36)
+                elif tile == 'h':
+                    River('angle', group, j * 36, i * 36)
 
-    def on_click(self, cell):
-        self._state[cell[0]][cell[1]] = 1 - self._state[cell[0]][cell[1]]
-        print(cell)
-
-    def process_click(self, mouse_pos):
-        cell = self.get_cell(mouse_pos)
-        if cell is not None:
-            self.on_click(cell)
-
-    def draw(self, surface):
-        for x, y in product(range(self._width), range(self._height)):
+    def draw_net(self, surface):
+        state = [[0] * 720 for _ in range(1080)]
+        for x, y in product(range(1080), range(720)):
             pygame.draw.rect(surface, (255, 255, 255),
-                         (x * self._cs + self._pos[0],
-                          y * self._cs + self._pos[0],
-                          self._cs, self._cs), width=1 - self._state[x][y])
-
-
-def load_image(name):
-     fullname = os.path.join('data', name)
-     image = pygame.image.load(fullname)
-     image = pygame.transform.scale(image, (48, 48))
-     return image
-
-
-class CircleStation(pygame.sprite.Sprite):
-    def __init__(self, *group):
-        super().__init__(*group)
-        self.image = load_image("circle.png")
-        self.rect = self.image.get_rect()
-
-    def update(self):
-        pass
-
-
-class RectangleStation(pygame.sprite.Sprite):
-    def __init__(self, *group):
-        super().__init__(*group)
-        self.image = load_image("rectangle.png")
-        self.rect = self.image.get_rect()
-
-    def update(self):
-        pass
-
-
-class TriangleStation(pygame.sprite.Sprite):
-    def __init__(self, *group):
-        super().__init__(*group)
-        self.image = load_image("triangle.png")
-        self.rect = self.image.get_rect()
-
-    def update(self):
-        pass
+                             (x * 36,
+                              y * 36,
+                              36, 36), width=1 - state[x][y])
 
 
 screen = pygame.display.set_mode(WINDOW_SIZE)
-
 all_sprites = pygame.sprite.Group()
-CircleStation(all_sprites)
+
+board = Board('data/map_peter.txt')
+board.load_map(all_sprites)
 
 while True:
     screen.fill(bg_color)
     all_sprites.draw(screen)
+    # board.draw_net(screen)
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
