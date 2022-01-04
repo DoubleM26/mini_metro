@@ -4,50 +4,34 @@ import pygame
 from pygame.locals import *
 from locals import *
 from itertools import product
+import random
 
 pygame.init()
 clock = pygame.time.Clock()
 
-WINDOW_SIZE = (1920, 1080)
+WINDOW_SIZE = (1080, 720)
 
 
 class Board:
-    def __init__(self, width, height, position=(0, 0), cell_size=48):
+    def __init__(self, width, height, position=(0, 0), cell_size=36):
         self.width = width
         self.height = height
         self.pos = position
         self.cs = cell_size
         self.state = [[0] * height for _ in range(width)]
 
-    def get_cell(self, mouse_pos):
-        result_x = (mouse_pos[0] - self.pos[0]) // self.cs
-        result_y = (mouse_pos[1] - self.pos[1]) // self.cs
-        if result_x > self.width or result_x < 0 or result_y > self.width or result_y < 0:
-            return None
-        return result_x, result_y
-
-    def on_click(self, cell):
-        self._state[cell[0]][cell[1]] = 1 - self._state[cell[0]][cell[1]]
-        print(cell)
-
-    def process_click(self, mouse_pos):
-        cell = self.get_cell(mouse_pos)
-        if cell is not None:
-            self.on_click(cell)
-
     def draw(self, surface):
-        for x, y in product(range(self._width), range(self._height)):
+        for x, y in product(range(self.width), range(self.height)):
             pygame.draw.rect(surface, (255, 255, 255),
-                         (x * self._cs + self._pos[0],
-                          y * self._cs + self._pos[0],
-                          self._cs, self._cs), width=1 - self._state[x][y])
+                             (x * self.cs,
+                              y * self.cs,
+                              self.cs, self.cs), width=1 - self.state[x][y])
 
 
 def load_image(name):
-     fullname = os.path.join('data', name)
-     image = pygame.image.load(fullname)
-     image = pygame.transform.scale(image, (48, 48))
-     return image
+    fullname = os.path.join('data', name)
+    img = pygame.image.load(fullname)
+    return img
 
 
 class CircleStation(pygame.sprite.Sprite):
@@ -56,8 +40,9 @@ class CircleStation(pygame.sprite.Sprite):
         self.image = load_image("circle.png")
         self.rect = self.image.get_rect()
 
-    def update(self):
-        pass
+    def set_pos(self, x, y):
+        self.rect.x = x
+        self.rect.y = y
 
 
 class RectangleStation(pygame.sprite.Sprite):
@@ -66,8 +51,9 @@ class RectangleStation(pygame.sprite.Sprite):
         self.image = load_image("rectangle.png")
         self.rect = self.image.get_rect()
 
-    def update(self):
-        pass
+    def set_pos(self, x, y):
+        self.rect.x = x
+        self.rect.y = y
 
 
 class TriangleStation(pygame.sprite.Sprite):
@@ -76,22 +62,55 @@ class TriangleStation(pygame.sprite.Sprite):
         self.image = load_image("triangle.png")
         self.rect = self.image.get_rect()
 
-    def update(self):
-        pass
+    def set_pos(self, x, y):
+        self.rect.x = x
+        self.rect.y = y
 
+
+class Stations:
+    def __init__(self):
+        self.stations = [[0 for _ in range(1080 // 36)] for _ in range(720 // 36)]
+        start_stations = [0, 1, 2, 3]
+        random.shuffle(start_stations)
+        print(start_stations)
+        self.stations[random.choice(range(4, 9))][random.choice(range(10, 14))] = start_stations[0]
+        self.stations[random.choice(range(4, 9))][random.choice(range(16, 20))] = start_stations[1]
+        self.stations[random.choice(range(11, 16))][random.choice(range(10, 14))] = start_stations[2]
+        self.stations[random.choice(range(11, 16))][random.choice(range(16, 20))] = start_stations[3]
+
+    def draw(self):
+        for i in range(len(self.stations)):
+            for j in range(len(self.stations[0])):
+                if self.stations[i][j] == 1:
+                    station = CircleStation(all_sprites)
+                    station.set_pos(j * 36, i * 36)
+                elif self.stations[i][j] == 2:
+                    station = RectangleStation(all_sprites)
+                    station.set_pos(j * 36, i * 36)
+                elif self.stations[i][j] == 3:
+                    station = TriangleStation(all_sprites)
+                    station.set_pos(j * 36, i * 36)
 
 screen = pygame.display.set_mode(WINDOW_SIZE)
-
 all_sprites = pygame.sprite.Group()
-CircleStation(all_sprites)
+
+stations = Stations()
+stations.draw()
+board = Board(1080, 720)
+screen.fill(bg_color)
+board.draw(screen)
+pygame.display.flip()
 
 while True:
-    screen.fill(bg_color)
     all_sprites.draw(screen)
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
-
+        if event.type == MOUSEBUTTONUP:
+            all_sprites = pygame.sprite.Group()
+            pygame.display.update()
+            stations = Stations()
+            stations.draw()
     clock.tick(60)
     pygame.display.update()
