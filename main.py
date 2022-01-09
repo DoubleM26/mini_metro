@@ -4,6 +4,8 @@ import pygame
 from pygame.locals import *
 from locals import *
 from itertools import product
+import random
+from panel import *
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -66,20 +68,102 @@ class Board:
                               36, 36), width=1 - state[x][y])
 
 
+class CircleStation(pygame.sprite.Sprite):
+    def __init__(self, group):
+        super().__init__(group)
+        self.image = pygame.image.load("data/circle.png")
+        self.rect = self.image.get_rect()
+
+    def update(self):
+        pass
+
+    def set_pos(self, x, y):
+        self.rect.x = x
+        self.rect.y = y
+
+
+class RectangleStation(pygame.sprite.Sprite):
+    def __init__(self, group):
+        super().__init__(group)
+        self.image = pygame.image.load("data/Rectangle.png")
+        self.rect = self.image.get_rect()
+
+    def update(self):
+        pass
+
+    def set_pos(self, x, y):
+        self.rect.x = x
+        self.rect.y = y
+
+
+class TriangleStation(pygame.sprite.Sprite):
+    def __init__(self, group):
+        super().__init__(group)
+        self.image = pygame.image.load("data/triangle.png")
+        self.rect = self.image.get_rect()
+
+    def update(self):
+        pass
+
+    def set_pos(self, x, y):
+        self.rect.x = x
+        self.rect.y = y
+
+
+class Stations:
+    def __init__(self):
+        self.stations = [[0 for _ in range(1080 // 36)] for _ in range(720 // 36)]
+        start_stations = [0, 1, 2, 3]
+        random.shuffle(start_stations)
+        print(start_stations)
+        self.stations[random.choice(range(4, 9))][random.choice(range(10, 14))] = start_stations[0]
+        self.stations[random.choice(range(4, 9))][random.choice(range(16, 20))] = start_stations[1]
+        self.stations[random.choice(range(11, 16))][random.choice(range(10, 14))] = start_stations[2]
+        self.stations[random.choice(range(11, 16))][random.choice(range(16, 20))] = start_stations[3]
+
+    def draw(self):
+        for i in range(len(self.stations)):
+            for j in range(len(self.stations[0])):
+                if self.stations[i][j] == 1:
+                    station = CircleStation(all_sprites)
+                    station.set_pos(j * 36, i * 36)
+                elif self.stations[i][j] == 2:
+                    station = RectangleStation(all_sprites)
+                    station.set_pos(j * 36, i * 36)
+                elif self.stations[i][j] == 3:
+                    station = TriangleStation(all_sprites)
+                    station.set_pos(j * 36, i * 36)
+
+
 screen = pygame.display.set_mode(WINDOW_SIZE)
 all_sprites = pygame.sprite.Group()
+interface_sprites = pygame.sprite.Group()
 
 board = Board('data/map_peter.txt')
+stations = Stations()
 board.load_map(all_sprites)
+
+panel = Panel(interface_sprites)
 
 while True:
     screen.fill(bg_color)
-    all_sprites.draw(screen)
     # board.draw_net(screen)
+    stations.draw()
+    all_sprites.draw(screen)
+    interface_sprites.draw(screen)
+
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
+        if event.type == MOUSEBUTTONDOWN:
+            mouse_pos = pygame.mouse.get_pos()
+            if panel.buttons[0].rect.collidepoint(mouse_pos):
+                panel.trigger(0)
+            elif panel.buttons[1].rect.collidepoint(mouse_pos):
+                panel.trigger(1)
+            elif panel.buttons[2].rect.collidepoint(mouse_pos):
+                panel.trigger(2)
 
     clock.tick(60)
     pygame.display.update()
