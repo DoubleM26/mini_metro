@@ -59,7 +59,7 @@ class Board:
                 elif tile == 'h':
                     River('angle', group, j * 36, i * 36)
 
-    def draw_net(self, surface):
+    def draw_grid(self, surface):
         state = [[0] * 720 for _ in range(1080)]
         for x, y in product(range(1080), range(720)):
             pygame.draw.rect(surface, (255, 255, 255),
@@ -142,15 +142,25 @@ interface_sprites = pygame.sprite.Group()
 board = Board('data/map_peter.txt')
 stations = Stations()
 board.load_map(all_sprites)
+stations.draw()
+
+
+
+
+
+
+
 
 panel = Panel(interface_sprites)
 
 while True:
     screen.fill(bg_color)
-    # board.draw_net(screen)
-    stations.draw()
+    # board.draw_grid(screen)
     all_sprites.draw(screen)
     interface_sprites.draw(screen)
+    screen.blit(panel.bridge_number, (750, 668))
+    screen.blit(panel.locomotive_number, (430, 668))
+    screen.blit(panel.people_counter, (1030, 30))
 
     for event in pygame.event.get():
         if event.type == QUIT:
