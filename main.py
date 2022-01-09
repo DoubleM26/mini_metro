@@ -5,6 +5,7 @@ from pygame.locals import *
 from constants import *
 from stations import Stations
 from main_menu import *
+from time import time, sleep
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -15,10 +16,21 @@ mouse_pos = (0, 0)
 menu_sprites = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 
+
 moscow = Minimap(menu_sprites, 200, 150, pygame.image.load("data/moscow.png"))
 peter = Minimap(menu_sprites, 600, 150, pygame.image.load("data/saint_p.png"))
 novgorod = Minimap(menu_sprites, 200, 450, pygame.image.load("data/novgorod.png"))
 samara = Minimap(menu_sprites, 600, 450, pygame.image.load("data/samara.png"))
+
+rivers = pygame.sprite.Group()
+board.load_map(rivers)
+stations = Stations(all_sprites, 'maps/map_peter.txt')
+stations.draw()
+screen.fill(BG_COLOR)
+all_sprites.draw(screen)
+# board.draw_grid(screen)
+rivers.draw(screen)
+previous_time = round(time())
 
 while True:
     if game_condition == 0:
@@ -55,12 +67,10 @@ while True:
         # board.draw_grid(screen)
     elif game_condition == 2:
         pass
-
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
-
         if game_condition == 0:
             if event.type == MOUSEMOTION:
                 mouse_pos = pygame.mouse.get_pos()
@@ -87,3 +97,8 @@ while True:
 
     clock.tick(60)
     pygame.display.update()
+    if round(time()) - previous_time > stations.duration:
+        previous_time = round(time())
+        stations.generate_station()
+        stations.draw()
+        all_sprites.draw(screen)
