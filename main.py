@@ -1,27 +1,32 @@
 import sys
 from board import Board
-import pygame
 from pygame.locals import *
-from constants import *
 from stations import Stations
 from main_menu import *
-from time import time, sleep
-from panel import Panel
+from time import time
+from panel import Panel, myfont
 
 pygame.init()
 clock = pygame.time.Clock()
-game_condition = 0
 screen = pygame.display.set_mode(WINDOW_SIZE)
+
+previous_time = 0
+game_condition = 0
 mouse_pos = (0, 0)
 red_lines = list()
 red_ends = [(0, 0), (0, 0)]
 drawing = False
+first_point = (0, 0)
+points = list()
+basic_rivers = list()
 
 rivers = pygame.sprite.Group()
 menu_sprites = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 interface_sprites = pygame.sprite.Group()
 
+panel = Panel(interface_sprites)
+stations = Stations(all_sprites, 'maps/map_moscow.txt')
 
 moscow = Minimap(menu_sprites, 200, 150, pygame.image.load("data/moscow.png"))
 peter = Minimap(menu_sprites, 600, 150, pygame.image.load("data/saint_p.png"))
@@ -37,7 +42,7 @@ def update():
     rivers.draw(screen)
 
     for first, second in red_lines:
-        pygame.draw.line(screen, RED, first, second, width=15)
+        pygame.draw.line(screen, RED, first, second, width=10)
 
     all_sprites.draw(screen)
     interface_sprites.draw(screen)
@@ -71,11 +76,14 @@ while True:
                         board.load_map(rivers)
                         rivers.draw(screen)
 
+                        for el in rivers:
+                            if el.direction == 'basic':
+                                basic_rivers.append(el)
+
                         stations = Stations(all_sprites, path)
                         stations.draw()
                         all_sprites.draw(screen)
 
-                        panel = Panel(interface_sprites)
                         screen.blit(panel.bridge_number, (750, 668))
                         screen.blit(panel.locomotive_number, (430, 668))
                         screen.blit(panel.people_counter, (1030, 30))
@@ -99,36 +107,72 @@ while True:
                 for el in all_sprites:
                     if el.rect.collidepoint(mouse_pos):
                         first_point = tuple([el.rect.centerx, el.rect.centery])
+                        drawing = True
 
             if event.type == MOUSEBUTTONUP:
                 mouse_pos = pygame.mouse.get_pos()
-                # print('A')
-                for el in all_sprites:
-                    if el.rect.collidepoint(mouse_pos):
-                        # print('B')
-                        if panel.color == RED:
-                            # print('C')
-                            second_point = tuple([el.rect.centerx, el.rect.centery])
-                            if tuple([first_point, second_point]) not in red_lines and tuple([second_point, first_point]) not in red_lines:
-                                # print('f')
-                                if red_ends == [(0, 0), (0, 0)]:
-                                    # print('A')
-                                    red_ends[0], red_ends[1] = first_point, second_point
-                                    red_lines.append(tuple([first_point, second_point]))
-                                else:
-                                    if red_ends[0] == red_ends[1]:
-                                        pass
-                                    elif first_point == red_ends[0]:
-                                        print()
-                                        red_ends[0] = second_point
-                                        red_lines.insert(0, tuple([first_point, second_point]))
-                                    elif first_point == red_ends[1]:
-                                        red_ends[1] = second_point
-                                        red_lines.append(tuple([first_point, second_point]))
+                if drawing:
+                    for el in all_sprites:
+                        if el.rect.collidepoint(mouse_pos):
+                            if panel.color == RED:
+                                second_point = tuple([el.rect.centerx, el.rect.centery])
+                                if second_point not in points:
+                                    if red_ends == [(0, 0), (0, 0)]:
+                                        for river in basic_rivers:
+                                            if pygame.draw.line(screen, BG_COLOR, first_point, second_point) \
+                                                    .colliderect(river):
+                                                if panel.bridges.bridge_count > 0:
+                                                    red_ends[0], red_ends[1] = first_point, second_point
+                                                    red_lines.append(tuple([first_point, second_point]))
+                                                    panel.bridges.bridge_count -= 1
+                                                    points.append(second_point)
+                                                    points.append(first_point)
+                                                    panel.bridge_number = myfont.render(
+                                                        str(panel.bridges.bridge_count), False, (255, 255, 255))
+                                                break
+                                        else:
+                                            print('che')
+                                            red_ends[0], red_ends[1] = first_point, second_point
+                                            red_lines.append(tuple([first_point, second_point]))
+                                            points.append(second_point)
+                                            points.append(first_point)
 
-                            update()
-                            # print(second_point, 'sdssfsdfsd')
-                            print(red_lines)
+                                    else:
+                                        if first_point == red_ends[0]:
+                                            for river in basic_rivers:
+                                                if pygame.draw.line(screen, BG_COLOR, first_point, second_point)\
+                                                        .colliderect(river):
+                                                    if panel.bridges.bridge_count > 0:
+                                                        red_ends[0] = second_point
+                                                        red_lines.insert(0, tuple([first_point, second_point]))
+                                                        panel.bridges.bridge_count -= 1
+                                                        points.append(second_point)
+                                                        panel.bridge_number = myfont.render(
+                                                            str(panel.bridges.bridge_count), False, (255, 255, 255))
+                                                    break
+                                            else:
+                                                red_ends[0] = second_point
+                                                red_lines.insert(0, tuple([first_point, second_point]))
+                                                points.append(second_point)
+
+                                        elif first_point == red_ends[1]:
+                                            for river in basic_rivers:
+                                                if pygame.draw.line(screen, BG_COLOR, first_point, second_point)\
+                                                        .colliderect(river):
+                                                    if panel.bridges.bridge_count > 0:
+                                                        red_ends[1] = second_point
+                                                        red_lines.append(tuple([first_point, second_point]))
+                                                        points.append(second_point)
+                                                        panel.bridges.bridge_count -= 1
+                                                        panel.bridge_number = myfont.render(
+                                                            str(panel.bridges.bridge_count), False, (255, 255, 255))
+                                                    break
+                                            else:
+                                                red_ends[1] = second_point
+                                                red_lines.append(tuple([first_point, second_point]))
+                                                points.append(second_point)
+                                update()
+
         elif game_condition == 2:
             pass
 
@@ -171,4 +215,3 @@ while True:
 
     clock.tick(60)
     pygame.display.update()
-
