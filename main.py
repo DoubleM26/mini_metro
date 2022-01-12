@@ -171,7 +171,13 @@ while True:
                                                 red_ends[1] = second_point
                                                 red_lines.append(tuple([first_point, second_point]))
                                                 points.append(second_point)
-                                update()
+                drawing = False
+                update()
+            if event.type == MOUSEMOTION:
+                if drawing:
+                    mouse_pos = pygame.mouse.get_pos()
+                    update()
+                    pygame.draw.line(screen, RED, first_point, mouse_pos, width=10)
 
         elif game_condition == 2:
             pass
