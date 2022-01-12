@@ -13,6 +13,9 @@ clock = pygame.time.Clock()
 game_condition = 0
 screen = pygame.display.set_mode(WINDOW_SIZE)
 mouse_pos = (0, 0)
+red_lines = list()
+red_ends = [(0, 0), (0, 0)]
+drawing = False
 
 rivers = pygame.sprite.Group()
 menu_sprites = pygame.sprite.Group()
@@ -32,6 +35,10 @@ def update():
     screen.blit(panel.locomotive_number, (430, 668))
     screen.blit(panel.people_counter, (1030, 30))
     rivers.draw(screen)
+
+    for first, second in red_lines:
+        pygame.draw.line(screen, RED, first, second, width=15)
+
     all_sprites.draw(screen)
     interface_sprites.draw(screen)
 
@@ -88,6 +95,40 @@ while True:
                 elif panel.buttons[2].rect.collidepoint(mouse_pos):
                     panel.trigger(2)
                     update()
+
+                for el in all_sprites:
+                    if el.rect.collidepoint(mouse_pos):
+                        first_point = tuple([el.rect.centerx, el.rect.centery])
+
+            if event.type == MOUSEBUTTONUP:
+                mouse_pos = pygame.mouse.get_pos()
+                # print('A')
+                for el in all_sprites:
+                    if el.rect.collidepoint(mouse_pos):
+                        # print('B')
+                        if panel.color == RED:
+                            # print('C')
+                            second_point = tuple([el.rect.centerx, el.rect.centery])
+                            if tuple([first_point, second_point]) not in red_lines and tuple([second_point, first_point]) not in red_lines:
+                                # print('f')
+                                if red_ends == [(0, 0), (0, 0)]:
+                                    # print('A')
+                                    red_ends[0], red_ends[1] = first_point, second_point
+                                    red_lines.append(tuple([first_point, second_point]))
+                                else:
+                                    if red_ends[0] == red_ends[1]:
+                                        pass
+                                    elif first_point == red_ends[0]:
+                                        print()
+                                        red_ends[0] = second_point
+                                        red_lines.insert(0, tuple([first_point, second_point]))
+                                    elif first_point == red_ends[1]:
+                                        red_ends[1] = second_point
+                                        red_lines.append(tuple([first_point, second_point]))
+
+                            update()
+                            # print(second_point, 'sdssfsdfsd')
+                            print(red_lines)
         elif game_condition == 2:
             pass
 

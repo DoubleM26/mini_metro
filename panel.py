@@ -1,5 +1,6 @@
 import pygame
 from utils import load_image
+from constants import *
 pygame.font.init()
 myfont = pygame.font.SysFont('Arial', 25)
 
@@ -56,6 +57,7 @@ class Button(pygame.sprite.Sprite):
 
 class Panel:
     def __init__(self, group):
+        self.dict = {0: RED, 1: YELLOW, 2: BLUE}
         self.people_count = 0
         self.buttons = [
                         Button(group, 490, 665, load_image("red_button.png")),
@@ -63,7 +65,7 @@ class Panel:
                         Button(group, 610, 665, load_image("blue_button.png")),
                         ]
         self.buttons[0].trigger()
-        self.color = 0
+        self.color = RED
 
         self.bridges = Bridge(group, 710, 665, load_image("bridge.png"))
         self.bridge_number = myfont.render(str(self.bridges.bridge_count), False, (255, 255, 255))
@@ -82,4 +84,4 @@ class Panel:
                 button.rect.y += 6
                 button.triggered = False
         self.buttons[i].trigger()
-        self.color = i
+        self.color = self.dict[i]
