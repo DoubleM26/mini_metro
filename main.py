@@ -114,7 +114,6 @@ while True:
 
         update()
 
-
     elif game_condition == 2:
         pass
 
@@ -145,8 +144,8 @@ while True:
                         board.load_map(rivers)
                         rivers.draw(screen)
 
-                        for el in rivers:
-                            if el.direction == 'basic':
+                        for i in rivers:
+                            if i.direction == 'basic':
                                 basic_rivers.append(el)
 
                         stations = Stations(all_sprites, path)
