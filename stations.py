@@ -8,6 +8,7 @@ class CircleStation(pygame.sprite.Sprite):
         super().__init__(*group)
         self.overfilled = False
         self.counter = 0
+        self.game_end = False
         self.frames = {0: pygame.image.load('data/circle.png'), 1: pygame.image.load('data/circle_red.png')}
         self.cur_frame = 0
         self.image = load_image("circle.png")
@@ -23,8 +24,11 @@ class CircleStation(pygame.sprite.Sprite):
             if self.counter % 45 == 0:
                 self.cur_frame = (self.cur_frame + 1) % 2
                 self.image = self.frames[self.cur_frame]
+            if self.counter >= 900:
+                self.game_end = True
         else:
             self.image = self.frames[0]
+            self.counter = 0
 
 
 class RectangleStation(pygame.sprite.Sprite):
@@ -32,6 +36,7 @@ class RectangleStation(pygame.sprite.Sprite):
         super().__init__(*group)
         self.overfilled = False
         self.counter = 0
+        self.game_end = False
         self.frames = {0: pygame.image.load('data/Rectangle.png'), 1: pygame.image.load('data/rectangle_red.png')}
         self.cur_frame = 0
         self.image = load_image("rectangle.png")
@@ -47,15 +52,19 @@ class RectangleStation(pygame.sprite.Sprite):
             if self.counter % 45 == 0:
                 self.cur_frame = (self.cur_frame + 1) % 2
                 self.image = self.frames[self.cur_frame]
+            if self.counter >= 900:
+                self.game_end = True
         else:
             self.image = self.frames[0]
+            self.counter = 0
 
 
 class TriangleStation(pygame.sprite.Sprite):
     def __init__(self, *group):
         super().__init__(*group)
-        self.overfilled = False
+        self.overfilled = True
         self.counter = 0
+        self.game_end = False
         self.frames = {0: pygame.image.load('data/triangle.png'), 1: pygame.image.load('data/triangle_red.png')}
         self.cur_frame = 0
         self.image = load_image("triangle.png")
@@ -71,8 +80,11 @@ class TriangleStation(pygame.sprite.Sprite):
             if self.counter % 45 == 0:
                 self.cur_frame = (self.cur_frame + 1) % 2
                 self.image = self.frames[self.cur_frame]
+            if self.counter >= 900:
+                self.game_end = True
         else:
             self.image = self.frames[0]
+            self.counter = 0
 
 
 class PolygonStation(pygame.sprite.Sprite):
@@ -82,6 +94,7 @@ class PolygonStation(pygame.sprite.Sprite):
         self.counter = 0
         self.frames = {0: pygame.image.load('data/polygon.png'), 1: pygame.image.load('data/polygon_red.png')}
         self.cur_frame = 0
+        self.game_end = False
         self.image = load_image("polygon.png")
         self.rect = self.image.get_rect()
 
@@ -95,8 +108,11 @@ class PolygonStation(pygame.sprite.Sprite):
             if self.counter % 45 == 0:
                 self.cur_frame = (self.cur_frame + 1) % 2
                 self.image = self.frames[self.cur_frame]
+            if self.counter >= 900:
+                self.game_end = True
         else:
             self.image = self.frames[0]
+            self.counter = 0
 
 
 class StarStation(pygame.sprite.Sprite):
@@ -104,6 +120,7 @@ class StarStation(pygame.sprite.Sprite):
         super().__init__(*group)
         self.overfilled = False
         self.counter = 0
+        self.game_end = False
         self.frames = {0: pygame.image.load('data/star.png'), 1: pygame.image.load('data/star_red.png')}
         self.cur_frame = 0
         self.image = load_image("star.png")
@@ -119,8 +136,11 @@ class StarStation(pygame.sprite.Sprite):
             if self.counter % 45 == 0:
                 self.cur_frame = (self.cur_frame + 1) % 2
                 self.image = self.frames[self.cur_frame]
+            if self.counter >= 900:
+                self.game_end = True
         else:
             self.image = self.frames[0]
+            self.counter = 0
 
 
 class Stations:

@@ -96,6 +96,8 @@ while True:
 
         for el in all_sprites:
             el.update()
+            if el.game_end:
+                game_condition = 2
 
         for el in train_sprites:
             if el.color == RED:
