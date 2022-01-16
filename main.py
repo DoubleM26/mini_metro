@@ -15,6 +15,8 @@ screen = pygame.display.set_mode(WINDOW_SIZE)
 
 flag = False
 index = 0
+n = 0
+frame_count = 0
 sign = 1
 previous_time = 0
 game_condition = 0
@@ -98,6 +100,7 @@ while True:
             el.update()
             if el.game_end:
                 game_condition = 2
+                frame_count = 0
 
         for el in train_sprites:
             if el.color == RED:
@@ -120,7 +123,50 @@ while True:
         update()
 
     elif game_condition == 2:
-        pass
+        frame_count += 1
+        people = panel.people_count
+        screen.fill(BG_COLOR)
+        screen.blit(BIG_MENU_FONT.render(f'Игра окончена',
+                                         False, (255, 255, 255)), (200, 100))
+        screen.blit(BIG_MENU_FONT.render(f'Ваш результат: {people}',
+                                         False, (255, 255, 255)), (200, 190))
+        con = sqlite3.connect("data/records.db")
+        cur = con.cursor()
+        result = cur.execute("SELECT record FROM records WHERE id == ?", [n]).fetchall()[0][0]
+        if people > result:
+            cur.execute("UPDATE records SET record = ? WHERE id == ?", [people, n])
+        con.commit()
+        con.close()
+        if frame_count == 300:
+            game_condition = 0
+            flag = False
+            index = 0
+            n = 0
+            frame_count = 0
+            sign = 1
+            previous_time = 0
+            mouse_pos = (0, 0)
+            red_lines = list()
+            red_ends = [(0, 0), (0, 0)]
+            drawing = False
+            first_point = (0, 0)
+            red_points = list()
+            basic_rivers = list()
+            unfinished_line = False
+
+            rivers = pygame.sprite.Group()
+            menu_sprites = pygame.sprite.Group()
+            all_sprites = pygame.sprite.Group()
+            interface_sprites = pygame.sprite.Group()
+            train_sprites = pygame.sprite.Group()
+
+            panel = Panel(interface_sprites)
+            stations = Stations(all_sprites, 'maps/map_moscow.txt')
+
+            moscow = Minimap(menu_sprites, 200, 150, pygame.image.load("data/moscow.png"))
+            peter = Minimap(menu_sprites, 600, 150, pygame.image.load("data/saint_p.png"))
+            novgorod = Minimap(menu_sprites, 200, 450, pygame.image.load("data/novgorod.png"))
+            samara = Minimap(menu_sprites, 600, 450, pygame.image.load("data/samara.png"))
 
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -162,6 +208,8 @@ while True:
                         interface_sprites.draw(screen)
 
                         previous_time = round(time())
+                        records[n].x -= 18
+                        records[n].y += 6
 
         elif game_condition == 1:
             if event.type == MOUSEBUTTONDOWN:

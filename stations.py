@@ -62,7 +62,7 @@ class RectangleStation(pygame.sprite.Sprite):
 class TriangleStation(pygame.sprite.Sprite):
     def __init__(self, *group):
         super().__init__(*group)
-        self.overfilled = True
+        self.overfilled = False
         self.counter = 0
         self.game_end = False
         self.frames = {0: pygame.image.load('data/triangle.png'), 1: pygame.image.load('data/triangle_red.png')}
