@@ -10,3 +10,4 @@ SMALL_MENU_FONT = pygame.font.SysFont('Arial', 15)
 RED = (210, 91, 64)
 YELLOW = (234, 194, 53)
 BLUE = (47, 96, 171)
+COLORS = {0: None, 1: RED, 2: YELLOW, 3: BLUE}
