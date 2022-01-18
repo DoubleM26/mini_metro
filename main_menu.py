@@ -1,10 +1,17 @@
 import pygame
 from constants import *
+import sqlite3
 
-moscow_record = 1500
-peter_record = 1500
-novgorod_record = 1500
-samara_record = 1500
+
+con = sqlite3.connect("data/records.db")
+cur = con.cursor()
+result = cur.execute("SELECT record FROM records").fetchall()
+moscow_record = result[0][0]
+peter_record = result[1][0]
+novgorod_record = result[2][0]
+samara_record = result[3][0]
+con.commit()
+con.close()
 
 
 class Minimap(pygame.sprite.Sprite):
