@@ -41,6 +41,16 @@ def draw_line(first_point, end_point, screen, color):
             pygame.draw.line(screen, color, ((x1 + abs(y - y1)) + offset[0], y + offset[1] + lo), (x1, y1 + lo), width=7)
 
 
-
-
-
+def point(fp, sp):
+    x, y = fp
+    x1, y1 = sp
+    if abs(x1 - x) < abs(y1 - y):
+        if y1 > y:
+            return x, (y1 - abs(x - x1))
+        else:
+            return x, (y1 + abs(x - x1))
+    else:
+        if x1 > x:
+            return (x1 - abs(y - y1)), y
+        else:
+            return (x1 + abs(y - y1)), y

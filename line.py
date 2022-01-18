@@ -1,5 +1,8 @@
 from constants import BG_COLOR
 import pygame
+from trains import *
+from constants import *
+from utils import *
 
 
 class Line:
@@ -7,6 +10,10 @@ class Line:
         self.color = color
         self.ends = [(0, 0), (0, 0)]
         self.fragments = []
+        self.dict = {1: RED, 3: YELLOW, 2: BLUE}
+        self.points = list()
+        self.index = 0
+        self.sign = 1
         self.used_bridges = 0
     
     def set_ends(self, fp, sp, stations):
@@ -18,10 +25,8 @@ class Line:
         elif fp == self.ends[1]:
             self.ends[1] = sp
     
-    def add_fragment(self, fp, sp, stations, panel, basic_rivers, screen, myfont):
-        print(self.color, fp, sp, "  ends:", self.ends)
+    def add_fragment(self, fp, sp, stations, panel, basic_rivers, screen, myfont, group):
         if stations.colors[sp[1] // 36][sp[0] // 36] == self.color:
-            print("kuku", stations.colors[sp[1] // 36][sp[0] // 36], self.color)
             return
 
         if self.ends[0] == fp or self.ends[1] == fp or self.ends == [(0, 0), (0, 0)]:
@@ -29,6 +34,21 @@ class Line:
                 if pygame.draw.line(screen, BG_COLOR, fp, sp) \
                         .colliderect(river):
                     if panel.bridges.bridge_count > 0:
+                        if self.ends == [(0, 0), (0, 0)]:
+                            Train(group, fp[0], fp[1],
+                                  self.dict[self.color])
+                            self.points.append(fp)
+                            self.points.append(point(fp, sp))
+                            self.points.append(sp)
+                        if self.ends[0] == fp:
+                            self.points.insert(0, point(fp, sp))
+                            self.points.insert(0, sp)
+                            self.index += 2
+                        elif self.ends[1] == fp:
+                            self.points.append(point(fp, sp))
+                            self.points.append(sp)
+                        print(self.points)
+
                         self.set_ends(fp, sp, stations)
                         self.fragments.append((fp, sp))
                         stations.colors[sp[1] // 36][sp[0] // 36] = self.color
@@ -38,13 +58,29 @@ class Line:
                             str(panel.bridges.bridge_count), False, (255, 255, 255))
                     break
             else:
+                if self.ends == [(0, 0), (0, 0)]:
+                    Train(group, fp[0], fp[1],
+                          self.dict[self.color])
+                    self.points.append(fp)
+                    self.points.append(point(fp, sp))
+                    self.points.append(sp)
+                if self.ends[0] == fp:
+                    self.points.insert(0, point(fp, sp))
+                    self.points.insert(0, sp)
+                    self.index += 2
+                elif self.ends[1] == fp:
+                    self.points.append(point(fp, sp))
+                    self.points.append(sp)
+                print(self.points)
+
                 self.set_ends(fp, sp, stations)
                 stations.colors[sp[1] // 36][sp[0] // 36] = self.color
                 self.fragments.append((fp, sp))
-        for el in stations.colors:
-            print(*el)
 
     def clear(self, panel, myfont):
+        self.points = list()
+        self.index = 0
+        self.sign = 1
         self.ends = [(0, 0), (0, 0)]
         self.fragments = []
         panel.bridges.bridge_count += self.used_bridges

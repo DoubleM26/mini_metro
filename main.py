@@ -17,10 +17,8 @@ screen = pygame.display.set_mode(WINDOW_SIZE)
 
 
 flag = False
-index = 0
 n = 0
 frame_count = 0
-sign = 1
 previous_time = 0
 game_condition = 0
 mouse_pos = (0, 0)
@@ -28,9 +26,8 @@ red_lines = list()
 red_ends = [(0, 0), (0, 0)]
 drawing = False
 first_point = (0, 0)
-red_points = list()
 basic_rivers = list()
-unfinished_line = Falseist()
+unfinished_line = False
 
 rivers = pygame.sprite.Group()
 menu_sprites = pygame.sprite.Group()
@@ -57,7 +54,6 @@ def update():
     screen.blit(panel.people_counter, (1030, 30))
     rivers.draw(screen)
 
-
     for first, second in yellow_line.fragments:
         draw_line(first, second, screen, YELLOW)
     for first, second in blue_line.fragments:
@@ -68,8 +64,8 @@ def update():
     all_sprites.draw(screen)
     train_sprites.draw(screen)
     interface_sprites.draw(screen)
-    if unfinished_line:
-        pygame.draw.line(screen, RED, first_point, mouse_pos, width=10)
+    if flag:
+        draw_line(first_point, mouse_pos, screen, panel.color)
 
 
 while True:
@@ -116,17 +112,51 @@ while True:
 
         for el in train_sprites:
             if el.color == RED:
-                if el.rect.centerx == red_points[index + sign][0] and el.rect.centery == red_points[index + sign][1]:
-                    index += sign
-                    el.rect.centerx, el.rect.centery = red_points[index]
-                    if index == len(red_points) - 1:
-                        sign = -1
-                    elif index == 0:
-                        sign = 1
+                if el.rect.centerx == red_line.points[red_line.index + red_line.sign][0] and el.rect.centery == red_line.points[red_line.index + red_line.sign][1]:
+                    red_line.index += red_line.sign
+                    # el.rect.centerx, el.rect.centery = red_line.points[red_line.index]
+                    if red_line.index == len(red_line.points) - 1:
+                        red_line.sign = -1
+                    elif red_line.index == 0:
+                        red_line.sign = 1
 
                 else:
-                    ax, ay = red_points[index]
-                    bx, by = red_points[index + sign]
+                    ax, ay = red_line.points[red_line.index]
+                    bx, by = red_line.points[red_line.index + red_line.sign]
+                    dx, dy = (bx - ax, by - ay)
+                    stepx, stepy = (dx // 36, dy // 36)
+                    el.rect.centerx += stepx
+                    el.rect.centery += stepy
+            elif el.color == YELLOW:
+                if el.rect.centerx == yellow_line.points[yellow_line.index + yellow_line.sign][0] and el.rect.centery == \
+                        yellow_line.points[yellow_line.index + yellow_line.sign][1]:
+                    yellow_line.index += yellow_line.sign
+                    el.rect.centerx, el.rect.centery = yellow_line.points[yellow_line.index]
+                    if yellow_line.index == len(yellow_line.points) - 1:
+                        yellow_line.sign = -1
+                    elif yellow_line.index == 0:
+                        yellow_line.sign = 1
+
+                else:
+                    ax, ay = yellow_line.points[yellow_line.index]
+                    bx, by = yellow_line.points[yellow_line.index + yellow_line.sign]
+                    dx, dy = (bx - ax, by - ay)
+                    stepx, stepy = (dx // 36, dy // 36)
+                    el.rect.centerx += stepx
+                    el.rect.centery += stepy
+            elif el.color == BLUE:
+                if el.rect.centerx == blue_line.points[blue_line.index + blue_line.sign][0] and el.rect.centery == \
+                        blue_line.points[blue_line.index + blue_line.sign][1]:
+                    blue_line.index += blue_line.sign
+                    el.rect.centerx, el.rect.centery = blue_line.points[blue_line.index]
+                    if blue_line.index == len(blue_line.points) - 1:
+                        blue_line.sign = -1
+                    elif blue_line.index == 0:
+                        blue_line.sign = 1
+
+                else:
+                    ax, ay = blue_line.points[blue_line.index]
+                    bx, by = blue_line.points[blue_line.index + blue_line.sign]
                     dx, dy = (bx - ax, by - ay)
                     stepx, stepy = (dx // 36, dy // 36)
                     el.rect.centerx += stepx
@@ -152,17 +182,15 @@ while True:
         if frame_count == 300:
             game_condition = 0
             flag = False
-            index = 0
+            red_line.index = 0
             n = 0
             frame_count = 0
-            sign = 1
             previous_time = 0
             mouse_pos = (0, 0)
             red_lines = list()
             red_ends = [(0, 0), (0, 0)]
             drawing = False
             first_point = (0, 0)
-            red_points = list()
             basic_rivers = list()
             unfinished_line = False
 
@@ -232,6 +260,9 @@ while True:
                         panel.trigger(0)
                     else:
                         red_line.clear(panel, myfont)
+                        for el in train_sprites:
+                            if el.color == RED:
+                                train_sprites.remove(el)
                         stations.clear_color(1)
                     update()
                 elif panel.buttons[1].rect.collidepoint(mouse_pos):
@@ -239,14 +270,19 @@ while True:
                         panel.trigger(1)
                     else:
                         yellow_line.clear(panel, myfont)
+                        for el in train_sprites:
+                            if el.color == YELLOW:
+                                train_sprites.remove(el)
                         stations.clear_color(3)
                     update()
                 elif panel.buttons[2].rect.collidepoint(mouse_pos):
                     if event.button == 1:
                         panel.trigger(2)
-
                     else:
                         blue_line.clear(panel, myfont)
+                        for el in train_sprites:
+                            if el.color == BLUE:
+                                train_sprites.remove(el)
                         stations.clear_color(2)
                     update()
 
@@ -256,7 +292,6 @@ while True:
                         drawing = True
 
             if event.type == MOUSEBUTTONUP and event.button == 1:
-
                 mouse_pos = pygame.mouse.get_pos()
                 if drawing:
                     for el in all_sprites:
@@ -264,14 +299,15 @@ while True:
                             second_point = (el.rect.centerx, el.rect.centery)
                             if panel.color == RED:
                                 red_line.add_fragment(first_point, second_point, stations, panel, basic_rivers, screen,
-                                                      myfont)
+                                                      myfont, train_sprites)
                             elif panel.color == YELLOW:
                                 yellow_line.add_fragment(first_point, second_point, stations, panel, basic_rivers, screen,
-                                                      myfont)
+                                                      myfont, train_sprites)
                             elif panel.color == BLUE:
                                 blue_line.add_fragment(first_point, second_point, stations, panel, basic_rivers, screen,
-                                                      myfont)
+                                                      myfont, train_sprites)
                 drawing = False
+                flag = False
                 update()
             if event.type == MOUSEMOTION:
                 if drawing:
@@ -284,27 +320,9 @@ while True:
                         flag = True
                     if flag:
                         mouse_pos = pygame.mouse.get_pos()
-                        update()
-                        draw_line(first_point, mouse_pos, screen, panel.color)
 
         elif game_condition == 2:
             pass
-
-    if game_condition == 0:
-        screen.fill(BG_COLOR)
-        screen.blit(BIG_MENU_FONT.render('MiniMetro', False, (255, 255, 255)), (400, 60))
-
-
-
-
-    elif game_condition == 1:
-        if round(time()) - previous_time > stations.duration:
-            previous_time = round(time())
-            stations.generate_station()
-            # stations.draw()
-            all_sprites.draw(screen)
-    elif game_condition == 2:
-        pass
 
     clock.tick(60)
     pygame.display.update()
