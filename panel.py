@@ -25,6 +25,16 @@ class Bridge(pygame.sprite.Sprite):
         self.rect.y = y
         self.bridge_count = 10
 
+class Locomotive(pygame.sprite.Sprite):
+    def __init__(self, group, x, y, image):
+        super().__init__(group)
+        self.image = image
+        self.default_image = image
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.locomotive_count = 0
+
 
 class Button(pygame.sprite.Sprite):
     def __init__(self, group, x, y, image):
@@ -70,4 +80,5 @@ class Panel:
                 button.rect.y += 6
                 button.triggered = False
         self.buttons[i].trigger()
+
         self.color = self.dict[i]

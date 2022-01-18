@@ -150,7 +150,8 @@ class Stations:
             text = f.read()
         for line in text.split('\n'):
             self.board.append(list(line))
-        self.stations = [[0 for _ in range(1080)] for _ in range(720)]
+        self.stations = [[0 for _ in range(1080 // 36)] for _ in range(720 // 36)]
+        self.colors = [[0 for _ in range(1080 // 36)] for _ in range(720 // 36)]
         start_stations = [0, 1, 2, 3]
         random.shuffle(start_stations)
 
@@ -180,6 +181,10 @@ class Stations:
         self.stations_cnt = 0
 
     def check(self, x, y):
+        if x == 18 and 9 < y < 24:
+            return False
+        if x < 2 and y > 26:
+            return
         if self.board[x][y] == "r" or self.stations[x][y]:
             return False
         if self.board[x][y - 1] == "r" or self.stations[x][y - 1]:
@@ -214,6 +219,23 @@ class Stations:
                     station = StarStation(self.all_sprites)
                     station.set_pos(j * 36, i * 36)
 
+    def draw_station(self, x, y):
+        if self.stations[x][y] == 1:
+            station = CircleStation(self.all_sprites)
+            station.set_pos(y * 36, x * 36)
+        elif self.stations[x][y] == 2:
+            station = RectangleStation(self.all_sprites)
+            station.set_pos(y * 36, x * 36)
+        elif self.stations[x][y] == 3:
+            station = TriangleStation(self.all_sprites)
+            station.set_pos(y * 36, x * 36)
+        elif self.stations[x][y] == 4:
+            station = PolygonStation(self.all_sprites)
+            station.set_pos(y * 36, x * 36)
+        elif self.stations[x][y] == 5:
+            station = StarStation(self.all_sprites)
+            station.set_pos(y * 36, x * 36)
+
     def generate_station(self):
         self.stations_cnt += 1
         if self.stations_cnt % 5 == 0:
@@ -228,4 +250,11 @@ class Stations:
             self.stations[x][y] = random.choice([1, 1, 1, 1, 2, 2, 3, 3, 4, 5])
         else:
             self.stations[x][y] = random.choice([1, 1, 1, 2, 3])
-        print("Add station", x, y)
+        self.draw_station(x, y)
+        # print("Add station", x, y)
+
+    def clear_color(self, color_index):
+        for i in range(len(self.colors)):
+            for j in range(len(self.colors[0])):
+                if self.colors[i][j] == color_index:
+                    self.colors[i][j] = 0
