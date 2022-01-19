@@ -17,7 +17,7 @@ class Line:
     def set_ends(self, fp, sp, stations):
         if self.ends == [(0, 0), (0, 0)]:
             self.ends[0], self.ends[1] = fp, sp
-            stations.colors[fp[1] // 36][fp[0] // 36] = self.color
+            stations.colors[fp[1] // 36][fp[0] // 36].append(self.color)
         elif fp == self.ends[0]:
             self.ends[0] = sp
         elif fp == self.ends[1]:
@@ -39,7 +39,7 @@ class Line:
             self.points.append(sp)
     
     def add_fragment(self, fp, sp, stations, panel, basic_rivers, screen, group):
-        if stations.colors[sp[1] // 36][sp[0] // 36] == self.color:
+        if self.color in stations.colors[sp[1] // 36][sp[0] // 36]:
             return
 
         if self.ends[0] == fp or self.ends[1] == fp or self.ends == [(0, 0), (0, 0)]:
@@ -51,7 +51,7 @@ class Line:
 
                         self.set_ends(fp, sp, stations)
                         self.fragments.append((fp, sp))
-                        stations.colors[sp[1] // 36][sp[0] // 36] = self.color
+                        stations.colors[sp[1] // 36][sp[0] // 36].append(self.color)
                         panel.bridges.bridge_count -= 1
                         self.used_bridges += 1
                         panel.bridge_number = font.render(
@@ -61,7 +61,7 @@ class Line:
                 self.add_point(group, fp, sp)
 
                 self.set_ends(fp, sp, stations)
-                stations.colors[sp[1] // 36][sp[0] // 36] = self.color
+                stations.colors[sp[1] // 36][sp[0] // 36].append(self.color)
                 self.fragments.append((fp, sp))
 
     def clear(self, panel):

@@ -9,7 +9,7 @@ class CircleStation(pygame.sprite.Sprite):
         self.overfilled = False
         self.counter = 0
         self.game_end = False
-        self.frames = {0: pygame.image.load('data/circle.png'), 1: pygame.image.load('data/circle_red.png')}
+        self.frames = {0: pygame.image.load('data/circle.png'), 1: pygame.image.load('data/circle_2.png')}
         self.cur_frame = 0
         self.image = load_image("circle.png")
         self.rect = self.image.get_rect()
@@ -37,7 +37,7 @@ class RectangleStation(pygame.sprite.Sprite):
         self.overfilled = False
         self.counter = 0
         self.game_end = False
-        self.frames = {0: pygame.image.load('data/Rectangle.png'), 1: pygame.image.load('data/rectangle_red.png')}
+        self.frames = {0: pygame.image.load('data/Rectangle.png'), 1: pygame.image.load('data/rectangle_2.png')}
         self.cur_frame = 0
         self.image = load_image("rectangle.png")
         self.rect = self.image.get_rect()
@@ -65,7 +65,7 @@ class TriangleStation(pygame.sprite.Sprite):
         self.overfilled = True
         self.counter = 0
         self.game_end = False
-        self.frames = {0: pygame.image.load('data/triangle.png'), 1: pygame.image.load('data/triangle_red.png')}
+        self.frames = {0: pygame.image.load('data/triangle.png'), 1: pygame.image.load('data/triange_2.png')}
         self.cur_frame = 0
         self.image = load_image("triangle.png")
         self.rect = self.image.get_rect()
@@ -92,7 +92,7 @@ class PolygonStation(pygame.sprite.Sprite):
         super().__init__(*group)
         self.overfilled = True
         self.counter = 0
-        self.frames = {0: pygame.image.load('data/polygon.png'), 1: pygame.image.load('data/polygon_red.png')}
+        self.frames = {0: pygame.image.load('data/polygon.png'), 1: pygame.image.load('data/polygon_2.png')}
         self.cur_frame = 0
         self.game_end = False
         self.image = load_image("polygon.png")
@@ -121,7 +121,7 @@ class StarStation(pygame.sprite.Sprite):
         self.overfilled = True
         self.counter = 0
         self.game_end = False
-        self.frames = {0: pygame.image.load('data/star.png'), 1: pygame.image.load('data/star_red.png')}
+        self.frames = {0: pygame.image.load('data/star.png'), 1: pygame.image.load('data/star_2.png')}
         self.cur_frame = 0
         self.image = load_image("star.png")
         self.rect = self.image.get_rect()
@@ -151,7 +151,7 @@ class Stations:
         for line in text.split('\n'):
             self.board.append(list(line))
         self.stations = [[0 for _ in range(1080 // 36)] for _ in range(720 // 36)]
-        self.colors = [[0 for _ in range(1080 // 36)] for _ in range(720 // 36)]
+        self.colors = [[[] for _ in range(1080 // 36)] for _ in range(720 // 36)]
         start_stations = [0, 1, 2, 3]
         random.shuffle(start_stations)
 
@@ -255,5 +255,5 @@ class Stations:
     def clear_color(self, color_index):
         for i in range(len(self.colors)):
             for j in range(len(self.colors[0])):
-                if self.colors[i][j] == color_index:
-                    self.colors[i][j] = 0
+                if color_index in self.colors[i][j]:
+                    self.colors[i][j].remove(color_index)
