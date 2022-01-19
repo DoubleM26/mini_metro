@@ -1,8 +1,5 @@
-import pygame
 from utils import load_image
 from constants import *
-pygame.font.init()
-myfont = pygame.font.SysFont('Arial', 25)
 
 
 class Human(pygame.sprite.Sprite):
@@ -24,6 +21,7 @@ class Bridge(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.bridge_count = 10
+
 
 class Locomotive(pygame.sprite.Sprite):
     def __init__(self, group, x, y, image):
@@ -67,9 +65,9 @@ class Panel:
         self.color = RED
 
         self.bridges = Bridge(group, 710, 665, load_image("bridge.png"))
-        self.bridge_number = myfont.render(str(self.bridges.bridge_count), False, (255, 255, 255))
+        self.bridge_number = font.render(str(self.bridges.bridge_count), False, (255, 255, 255))
 
-        self.people_counter = myfont.render(str(self.people_count), False, (255, 255, 255))
+        self.people_counter = font.render(str(self.people_count), False, (255, 255, 255))
         self.human = Human(group, 990, 27, load_image("human.png"))
 
     def trigger(self, i):

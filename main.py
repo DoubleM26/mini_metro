@@ -1,15 +1,14 @@
 import sys
 
-import pygame.sprite
-from trains import *
-from board import Board
+from classes.board import Board
 from pygame.locals import *
-from stations import Stations
-from main_menu import *
+from classes.stations import Stations
+from classes.main_menu import *
 from time import time
-from panel import Panel, myfont
+from classes.panel import Panel
 from utils import draw_line
-from line import Line
+from classes.line import Line
+from db import DB
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -17,15 +16,15 @@ screen = pygame.display.set_mode(WINDOW_SIZE)
 
 
 flag = False
-n = 0
+map_ind = 0
 frame_count = 0
 previous_time = 0
 game_condition = 0
 mouse_pos = (0, 0)
-red_lines = list()
-red_ends = [(0, 0), (0, 0)]
+
+
 drawing = False
-first_point = (0, 0)
+
 basic_rivers = list()
 unfinished_line = False
 
@@ -37,11 +36,11 @@ train_sprites = pygame.sprite.Group()
 
 panel = Panel(interface_sprites)
 stations = Stations(all_sprites, 'maps/map_moscow.txt')
-
-moscow = Minimap(menu_sprites, 200, 150, pygame.image.load("data/moscow.png"))
-peter = Minimap(menu_sprites, 600, 150, pygame.image.load("data/saint_p.png"))
-novgorod = Minimap(menu_sprites, 200, 450, pygame.image.load("data/novgorod.png"))
-samara = Minimap(menu_sprites, 600, 450, pygame.image.load("data/samara.png"))
+db = DB()
+moscow = MiniMap(menu_sprites, 200, 150, pygame.image.load("data/moscow.png"), db, 0)
+peter = MiniMap(menu_sprites, 600, 150, pygame.image.load("data/saint_p.png"), db, 1)
+novgorod = MiniMap(menu_sprites, 200, 450, pygame.image.load("data/novgorod.png"), db, 2)
+samara = MiniMap(menu_sprites, 600, 450, pygame.image.load("data/samara.png"), db, 3)
 
 red_line = Line(1)
 blue_line = Line(2)
@@ -80,22 +79,17 @@ while True:
 
         menu_sprites.draw(screen)
 
-        screen.blit(moscow_text, moscow_rect)
-        screen.blit(peter_text, peter_rect)
-        screen.blit(novgorod_text, novgorod_rect)
-        screen.blit(samara_text, samara_rect)
+        screen.blit(moscow.record_text, moscow.record_text_rect)
+        screen.blit(peter.record_text, peter.record_text_rect)
+        screen.blit(samara.record_text, samara.record_text_rect)
+        screen.blit(novgorod.record_text, novgorod.record_text_rect)
 
         for n, el in enumerate(menu_sprites):
             if el.rect.collidepoint(mouse_pos):
-                el.trigger(n)
+                el.trigger()
             else:
                 if el.triggered:
-                    el.image = el.default_image
-                    el.rect.x += 8
-                    el.rect.y += 6
-                    el.triggered = False
-                    records[n].x -= 18
-                    records[n].y += 6
+                    el.un_trigger()
 
     elif game_condition == 1:
         if round(time()) - previous_time > stations.duration:
@@ -119,7 +113,6 @@ while True:
                         red_line.sign = -1
                     elif red_line.index == 0:
                         red_line.sign = 1
-
                 else:
                     ax, ay = red_line.points[red_line.index]
                     bx, by = red_line.points[red_line.index + red_line.sign]
@@ -172,25 +165,19 @@ while True:
                                          False, (255, 255, 255)), (200, 100))
         screen.blit(BIG_MENU_FONT.render(f'Ваш результат: {people}',
                                          False, (255, 255, 255)), (200, 190))
-        con = sqlite3.connect("data/records.db")
-        cur = con.cursor()
-        result = cur.execute("SELECT record FROM records WHERE id == ?", [n]).fetchall()[0][0]
-        if people > result:
-            cur.execute("UPDATE records SET record = ? WHERE id == ?", [people, n])
-        con.commit()
-        con.close()
-        if frame_count == 300:
+
+        db.update_record(map_ind, people)
+        db.get_records()
+        if frame_count == 200:
             game_condition = 0
             flag = False
             red_line.index = 0
-            n = 0
+            map_ind = 0
             frame_count = 0
             previous_time = 0
             mouse_pos = (0, 0)
-            red_lines = list()
-            red_ends = [(0, 0), (0, 0)]
+
             drawing = False
-            first_point = (0, 0)
             basic_rivers = list()
             unfinished_line = False
 
@@ -200,13 +187,17 @@ while True:
             interface_sprites = pygame.sprite.Group()
             train_sprites = pygame.sprite.Group()
 
+            red_line.clear(panel)
+            blue_line.clear(panel)
+            yellow_line.clear(panel)
             panel = Panel(interface_sprites)
+
             stations = Stations(all_sprites, 'maps/map_moscow.txt')
 
-            moscow = Minimap(menu_sprites, 200, 150, pygame.image.load("data/moscow.png"))
-            peter = Minimap(menu_sprites, 600, 150, pygame.image.load("data/saint_p.png"))
-            novgorod = Minimap(menu_sprites, 200, 450, pygame.image.load("data/novgorod.png"))
-            samara = Minimap(menu_sprites, 600, 450, pygame.image.load("data/samara.png"))
+            moscow = MiniMap(menu_sprites, 200, 150, pygame.image.load("data/moscow.png"), db, 0)
+            peter = MiniMap(menu_sprites, 600, 150, pygame.image.load("data/saint_p.png"), db, 1)
+            novgorod = MiniMap(menu_sprites, 200, 450, pygame.image.load("data/novgorod.png"), db, 2)
+            samara = MiniMap(menu_sprites, 600, 450, pygame.image.load("data/samara.png"), db, 3)
 
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -222,12 +213,16 @@ while True:
                         path = ""
                         if n == 0:
                             path = 'maps/map_moscow.txt'
+                            map_ind = 0
                         elif n == 1:
                             path = 'maps/map_peter.txt'
+                            map_ind = 1
                         elif n == 2:
                             path = 'maps/map_novgorod.txt'
+                            map_ind = 2
                         elif n == 3:
                             path = 'maps/map_samara.txt'
+                            map_ind = 4
 
                         screen.fill(BG_COLOR)
 
@@ -249,8 +244,8 @@ while True:
                         interface_sprites.draw(screen)
 
                         previous_time = round(time())
-                        records[n].x -= 18
-                        records[n].y += 6
+                        # records[n].x -= 18
+                        # records[n].y += 6
 
         elif game_condition == 1:
             if event.type == MOUSEBUTTONDOWN:
@@ -259,7 +254,7 @@ while True:
                     if event.button == 1:
                         panel.trigger(0)
                     else:
-                        red_line.clear(panel, myfont)
+                        red_line.clear(panel)
                         for el in train_sprites:
                             if el.color == RED:
                                 train_sprites.remove(el)
@@ -269,7 +264,7 @@ while True:
                     if event.button == 1:
                         panel.trigger(1)
                     else:
-                        yellow_line.clear(panel, myfont)
+                        yellow_line.clear(panel)
                         for el in train_sprites:
                             if el.color == YELLOW:
                                 train_sprites.remove(el)
@@ -279,7 +274,7 @@ while True:
                     if event.button == 1:
                         panel.trigger(2)
                     else:
-                        blue_line.clear(panel, myfont)
+                        blue_line.clear(panel)
                         for el in train_sprites:
                             if el.color == BLUE:
                                 train_sprites.remove(el)
@@ -299,13 +294,13 @@ while True:
                             second_point = (el.rect.centerx, el.rect.centery)
                             if panel.color == RED:
                                 red_line.add_fragment(first_point, second_point, stations, panel, basic_rivers, screen,
-                                                      myfont, train_sprites)
+                                                      train_sprites)
                             elif panel.color == YELLOW:
                                 yellow_line.add_fragment(first_point, second_point, stations, panel, basic_rivers, screen,
-                                                      myfont, train_sprites)
+                                                      train_sprites)
                             elif panel.color == BLUE:
                                 blue_line.add_fragment(first_point, second_point, stations, panel, basic_rivers, screen,
-                                                      myfont, train_sprites)
+                                                      train_sprites)
                 drawing = False
                 flag = False
                 update()
@@ -324,6 +319,6 @@ while True:
         elif game_condition == 2:
             pass
 
-    clock.tick(60)
+    clock.tick(40)
     pygame.display.update()
 

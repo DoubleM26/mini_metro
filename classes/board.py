@@ -1,6 +1,4 @@
-from river import River
-from itertools import product
-import pygame
+from classes.river import River
 
 
 class Board:
@@ -29,10 +27,10 @@ class Board:
                 elif tile == 'h':
                     River('angle', group, j * 36, i * 36)
 
-    def draw_grid(self, surface):
-        state = [[0] * 720 for _ in range(1080)]
-        for x, y in product(range(1080), range(720)):
-            pygame.draw.rect(surface, (255, 255, 255),
-                             (x * 36,
-                              y * 36,
-                              36, 36), width=1 - state[x][y])
+    # def draw_grid(self, surface):
+    #     state = [[0] * 720 for _ in range(1080)]
+    #     for x, y in product(range(1080), range(720)):
+    #         pygame.draw.rect(surface, (255, 255, 255),
+    #                          (x * 36,
+    #                           y * 36,
+    #                           36, 36), width=1 - state[x][y])
