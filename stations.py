@@ -177,7 +177,7 @@ class Stations:
             y = random.choice(range(16, 20))
         self.stations[x][y] = start_stations[3]
 
-        self.duration = .5
+        self.duration = 5
         self.stations_cnt = 0
 
     def check(self, x, y):
