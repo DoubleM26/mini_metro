@@ -9,3 +9,5 @@ class Train(pygame.sprite.Sprite):
         self.rect.centerx = x
         self.rect.centery = y
         self.color = color
+        self.stop_time = -1
+        self.change_direction_cnt = 1

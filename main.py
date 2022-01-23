@@ -121,13 +121,20 @@ while True:
 
         for el in train_sprites:
             if el.color == RED:
-                if el.rect.centerx == red_line.points[red_line.index + red_line.sign][0] and el.rect.centery == red_line.points[red_line.index + red_line.sign][1]:
+                if el.rect.centerx == red_line.points[red_line.index + red_line.sign][0] \
+                        and el.rect.centery == red_line.points[red_line.index + red_line.sign][1] \
+                        and el.stop_time < round(time()):
                     red_line.index += red_line.sign
+                    if el.change_direction_cnt % 2 == 0:
+                        el.stop_time = round(time()) + 1
                     # el.rect.centerx, el.rect.centery = red_line.points[red_line.index]
                     if red_line.index == len(red_line.points) - 1:
                         red_line.sign = -1
                     elif red_line.index == 0:
                         red_line.sign = 1
+                    el.change_direction_cnt += 1
+                elif el.stop_time >= round(time()):
+                    pass
                 else:
                     ax, ay = red_line.points[red_line.index]
                     bx, by = red_line.points[red_line.index + red_line.sign]
@@ -136,15 +143,21 @@ while True:
                     el.rect.centerx += stepx
                     el.rect.centery += stepy
             elif el.color == YELLOW:
-                if el.rect.centerx == yellow_line.points[yellow_line.index + yellow_line.sign][0] and el.rect.centery == \
-                        yellow_line.points[yellow_line.index + yellow_line.sign][1]:
+                if el.rect.centerx == yellow_line.points[yellow_line.index + yellow_line.sign][0] \
+                        and el.rect.centery == yellow_line.points[yellow_line.index + yellow_line.sign][1] \
+                        and el.stop_time < round(time()):
                     yellow_line.index += yellow_line.sign
+                    if el.change_direction_cnt % 2 == 0:
+                        el.stop_time = round(time()) + 1
                     el.rect.centerx, el.rect.centery = yellow_line.points[yellow_line.index]
                     if yellow_line.index == len(yellow_line.points) - 1:
                         yellow_line.sign = -1
                     elif yellow_line.index == 0:
                         yellow_line.sign = 1
 
+                    el.change_direction_cnt += 1
+                elif el.stop_time >= round(time()):
+                    pass
                 else:
                     ax, ay = yellow_line.points[yellow_line.index]
                     bx, by = yellow_line.points[yellow_line.index + yellow_line.sign]
@@ -153,15 +166,21 @@ while True:
                     el.rect.centerx += stepx
                     el.rect.centery += stepy
             elif el.color == BLUE:
-                if el.rect.centerx == blue_line.points[blue_line.index + blue_line.sign][0] and el.rect.centery == \
-                        blue_line.points[blue_line.index + blue_line.sign][1]:
+                if el.rect.centerx == blue_line.points[blue_line.index + blue_line.sign][0] \
+                        and el.rect.centery == blue_line.points[blue_line.index + blue_line.sign][1] \
+                        and el.stop_time < round(time()):
                     blue_line.index += blue_line.sign
+                    if el.change_direction_cnt % 2 == 0:
+                        el.stop_time = round(time()) + 1
                     el.rect.centerx, el.rect.centery = blue_line.points[blue_line.index]
                     if blue_line.index == len(blue_line.points) - 1:
                         blue_line.sign = -1
                     elif blue_line.index == 0:
                         blue_line.sign = 1
 
+                    el.change_direction_cnt += 1
+                elif el.stop_time >= round(time()):
+                    pass
                 else:
                     ax, ay = blue_line.points[blue_line.index]
                     bx, by = blue_line.points[blue_line.index + blue_line.sign]
