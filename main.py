@@ -18,7 +18,7 @@ screen = pygame.display.set_mode(WINDOW_SIZE)
 flag = False
 map_ind = 0
 frame_count = 0
-previous_time = 0
+previous_time = [0, 0]
 game_condition = 0
 mouse_pos = (0, 0)
 
@@ -30,12 +30,20 @@ unfinished_line = False
 
 rivers = pygame.sprite.Group()
 menu_sprites = pygame.sprite.Group()
-all_sprites = pygame.sprite.Group()
+stations_sprites = pygame.sprite.Group()
 interface_sprites = pygame.sprite.Group()
 train_sprites = pygame.sprite.Group()
+passengers_sprites = pygame.sprite.Group()
+
+
+def set_overfilled(i):
+    print(len(stations_sprites), i)
+    if not list(stations_sprites)[i].overfilled:
+        list(stations_sprites)[i].overfilled = True
+
 
 panel = Panel(interface_sprites)
-stations = Stations(all_sprites, 'maps/map_moscow.txt')
+stations = Stations(stations_sprites, 'maps/map_moscow.txt', passengers_sprites, set_overfilled)
 db = DB()
 moscow = MiniMap(menu_sprites, 200, 150, pygame.image.load("data/moscow.png"), db, 0)
 peter = MiniMap(menu_sprites, 600, 150, pygame.image.load("data/saint_p.png"), db, 1)
@@ -60,9 +68,10 @@ def update():
     for first, second in red_line.fragments:
         draw_line(first, second, screen, RED)
 
-    all_sprites.draw(screen)
+    stations_sprites.draw(screen)
     train_sprites.draw(screen)
     interface_sprites.draw(screen)
+    passengers_sprites.draw(screen)
     if flag:
         draw_line(first_point, mouse_pos, screen, panel.color)
 
@@ -92,13 +101,19 @@ while True:
                     el.un_trigger()
 
     elif game_condition == 1:
-        if round(time()) - previous_time > stations.duration:
-            previous_time = round(time())
+        if round(time()) - previous_time[0] > stations.duration:
+            previous_time[0] = round(time())
             stations.generate_station()
-            stations.draw()
+            # stations.draw()
+            update()
+        if round(time() * 10) - previous_time[1] > stations.passenger_duration:
+            previous_time[1] = round(time() * 10)
+            stations.generate_passenger()
             update()
 
-        for el in all_sprites:
+        # if round(time()) - previous_time > stations.duration:
+
+        for el in stations_sprites:
             el.update()
             if el.game_end:
                 game_condition = 2
@@ -174,7 +189,7 @@ while True:
             red_line.index = 0
             map_ind = 0
             frame_count = 0
-            previous_time = 0
+            previous_time = [0, 0]
             mouse_pos = (0, 0)
 
             drawing = False
@@ -183,7 +198,8 @@ while True:
 
             rivers = pygame.sprite.Group()
             menu_sprites = pygame.sprite.Group()
-            all_sprites = pygame.sprite.Group()
+            stations_sprites = pygame.sprite.Group()
+            train_sprites = pygame.sprite.Group()
             interface_sprites = pygame.sprite.Group()
             train_sprites = pygame.sprite.Group()
 
@@ -192,7 +208,7 @@ while True:
             yellow_line.clear(panel)
             panel = Panel(interface_sprites)
 
-            stations = Stations(all_sprites, 'maps/map_moscow.txt')
+            stations = Stations(stations_sprites, 'maps/map_moscow.txt', passengers_sprites, set_overfilled)
 
             moscow = MiniMap(menu_sprites, 200, 150, pygame.image.load("data/moscow.png"), db, 0)
             peter = MiniMap(menu_sprites, 600, 150, pygame.image.load("data/saint_p.png"), db, 1)
@@ -235,15 +251,15 @@ while True:
 
                                 basic_rivers.append(el)
 
-                        stations = Stations(all_sprites, path)
+                        stations = Stations(stations_sprites, path, passengers_sprites, set_overfilled)
                         stations.draw()
-                        all_sprites.draw(screen)
+                        stations_sprites.draw(screen)
 
                         screen.blit(panel.bridge_number, (750, 668))
                         screen.blit(panel.people_counter, (1030, 30))
                         interface_sprites.draw(screen)
 
-                        previous_time = round(time())
+                        previous_time = [round(time()), round(time() * 10)]
                         # records[n].x -= 18
                         # records[n].y += 6
 
@@ -281,7 +297,7 @@ while True:
                         stations.clear_color(2)
                     update()
 
-                for el in all_sprites:
+                for el in stations_sprites:
                     if el.rect.collidepoint(mouse_pos):
                         first_point = tuple([el.rect.centerx, el.rect.centery])
                         drawing = True
@@ -289,7 +305,7 @@ while True:
             if event.type == MOUSEBUTTONUP and event.button == 1:
                 mouse_pos = pygame.mouse.get_pos()
                 if drawing:
-                    for el in all_sprites:
+                    for el in stations_sprites:
                         if el.rect.collidepoint(mouse_pos):
                             second_point = (el.rect.centerx, el.rect.centery)
                             if panel.color == RED:

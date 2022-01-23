@@ -1,157 +1,88 @@
 import pygame
 from utils import load_image
 import random
+from classes.station import Station
+from classes.passenger import Passenger
 
 
-class CircleStation(pygame.sprite.Sprite):
+class CircleStation(Station):
     def __init__(self, *group):
-        super().__init__(*group)
-        self.overfilled = False
-        self.counter = 0
-        self.game_end = False
         self.frames = {0: pygame.image.load('data/circle.png'), 1: pygame.image.load('data/circle_2.png')}
-        self.cur_frame = 0
         self.image = load_image("circle.png")
-        self.rect = self.image.get_rect()
-
-    def set_pos(self, x, y):
-        self.rect.x = x
-        self.rect.y = y
-
-    def update(self):
-        if self.overfilled:
-            self.counter += 1
-            if self.counter % 45 == 0:
-                self.cur_frame = (self.cur_frame + 1) % 2
-                self.image = self.frames[self.cur_frame]
-            if self.counter >= 900:
-                self.game_end = True
-        else:
-            self.image = self.frames[0]
-            self.counter = 0
-
-
-class RectangleStation(pygame.sprite.Sprite):
-    def __init__(self, *group):
         super().__init__(*group)
-        self.overfilled = False
-        self.counter = 0
-        self.game_end = False
+
+
+class RectangleStation(Station):
+    def __init__(self, *group):
         self.frames = {0: pygame.image.load('data/Rectangle.png'), 1: pygame.image.load('data/rectangle_2.png')}
-        self.cur_frame = 0
         self.image = load_image("rectangle.png")
-        self.rect = self.image.get_rect()
-
-    def set_pos(self, x, y):
-        self.rect.x = x
-        self.rect.y = y
-
-    def update(self):
-        if self.overfilled:
-            self.counter += 1
-            if self.counter % 45 == 0:
-                self.cur_frame = (self.cur_frame + 1) % 2
-                self.image = self.frames[self.cur_frame]
-            if self.counter >= 900:
-                self.game_end = True
-        else:
-            self.image = self.frames[0]
-            self.counter = 0
-
-
-class TriangleStation(pygame.sprite.Sprite):
-    def __init__(self, *group):
         super().__init__(*group)
-        self.overfilled = True
-        self.counter = 0
-        self.game_end = False
+
+
+class TriangleStation(Station):
+    def __init__(self, *group):
         self.frames = {0: pygame.image.load('data/triangle.png'), 1: pygame.image.load('data/triange_2.png')}
-        self.cur_frame = 0
         self.image = load_image("triangle.png")
-        self.rect = self.image.get_rect()
-
-    def set_pos(self, x, y):
-        self.rect.x = x
-        self.rect.y = y
-
-    def update(self):
-        if self.overfilled:
-            self.counter += 1
-            if self.counter % 45 == 0:
-                self.cur_frame = (self.cur_frame + 1) % 2
-                self.image = self.frames[self.cur_frame]
-            if self.counter >= 900:
-                self.game_end = True
-        else:
-            self.image = self.frames[0]
-            self.counter = 0
-
-
-class PolygonStation(pygame.sprite.Sprite):
-    def __init__(self, *group):
         super().__init__(*group)
-        self.overfilled = True
-        self.counter = 0
+
+
+class PolygonStation(Station):
+    def __init__(self, *group):
         self.frames = {0: pygame.image.load('data/polygon.png'), 1: pygame.image.load('data/polygon_2.png')}
-        self.cur_frame = 0
-        self.game_end = False
         self.image = load_image("polygon.png")
-        self.rect = self.image.get_rect()
-
-    def set_pos(self, x, y):
-        self.rect.x = x
-        self.rect.y = y
-
-    def update(self):
-        if self.overfilled:
-            self.counter += 1
-            if self.counter % 45 == 0:
-                self.cur_frame = (self.cur_frame + 1) % 2
-                self.image = self.frames[self.cur_frame]
-            if self.counter >= 900:
-                self.game_end = True
-        else:
-            self.image = self.frames[0]
-            self.counter = 0
-
-
-class StarStation(pygame.sprite.Sprite):
-    def __init__(self, *group):
         super().__init__(*group)
-        self.overfilled = True
-        self.counter = 0
-        self.game_end = False
+
+
+class StarStation(Station):
+    def __init__(self, *group):
         self.frames = {0: pygame.image.load('data/star.png'), 1: pygame.image.load('data/star_2.png')}
-        self.cur_frame = 0
         self.image = load_image("star.png")
-        self.rect = self.image.get_rect()
+        super().__init__(*group)
 
-    def set_pos(self, x, y):
-        self.rect.x = x
-        self.rect.y = y
 
-    def update(self):
-        if self.overfilled:
-            self.counter += 1
-            if self.counter % 45 == 0:
-                self.cur_frame = (self.cur_frame + 1) % 2
-                self.image = self.frames[self.cur_frame]
-            if self.counter >= 900:
-                self.game_end = True
-        else:
-            self.image = self.frames[0]
-            self.counter = 0
+class CirclePassenger(Passenger):
+    def __init__(self, *group):
+        self.image = load_image("passengers/circle.png")
+        super().__init__(*group)
+
+
+class RectanglePassenger(Passenger):
+    def __init__(self, *group):
+        self.image = load_image("passengers/rectangle.png")
+        super().__init__(*group)
+
+
+class TrianglePassenger(Passenger):
+    def __init__(self, *group):
+        self.image = load_image("passengers/triangle.png")
+        super().__init__(*group)
+
+
+class StarPassenger(Passenger):
+    def __init__(self, *group):
+        self.image = load_image("passengers/star.png")
+        super().__init__(*group)
+
+
+class PolygonPassenger(Passenger):
+    def __init__(self, *group):
+        self.image = load_image("passengers/polygon.png")
+        super().__init__(*group)
 
 
 class Stations:
-    def __init__(self, all_sprites, path):
+    def __init__(self, all_sprites, path, passengers_sprites, set_overfilled):
         self.board = list()
+        self.set_overfilled = set_overfilled
         with open(path) as f:
             text = f.read()
         for line in text.split('\n'):
             self.board.append(list(line))
         self.stations = [[0 for _ in range(1080 // 36)] for _ in range(720 // 36)]
         self.colors = [[[] for _ in range(1080 // 36)] for _ in range(720 // 36)]
+        self.passengers = [[[] for _ in range(1080 // 36)] for _ in range(720 // 36)]
+        self.available_station_types = [0, 1, 1, 1, 0, 0]
+        self.passengers_sprites = passengers_sprites
         start_stations = [0, 1, 2, 3]
         random.shuffle(start_stations)
 
@@ -177,14 +108,17 @@ class Stations:
             y = random.choice(range(16, 20))
         self.stations[x][y] = start_stations[3]
 
-        self.duration = 5
+        self.duration = 6
         self.stations_cnt = 0
+        self.passenger_duration = 4
 
     def check(self, x, y):
         if x == 18 and 9 < y < 24:
             return False
         if x < 2 and y > 26:
-            return
+            return False
+        if self.stations[x][y - 2] or self.stations[x][y + 2]:
+            return False
         if self.board[x][y] == "r" or self.stations[x][y]:
             return False
         if self.board[x][y - 1] == "r" or self.stations[x][y - 1]:
@@ -241,13 +175,17 @@ class Stations:
         if self.stations_cnt % 5 == 0:
             self.duration += 2
 
-        x, y, = random.randint(1, 18), random.randint(1, 28)
+        x, y, = random.randint(1, 18), random.randint(1, 27)
         while not self.check(x, y):
-            x, y, = random.randint(1, 18), random.randint(1, 28)
+            x, y, = random.randint(1, 18), random.randint(1, 27)
         if self.stations_cnt == 12:
-            self.stations[x][y] = random.choice([4, 5])
+            new_station = random.choice([4, 5])
+            self.available_station_types[new_station] = 1
+            self.stations[x][y] = new_station
         elif self.stations_cnt > 12:
-            self.stations[x][y] = random.choice([1, 1, 1, 1, 2, 2, 3, 3, 4, 5])
+            new_station = random.choice([1, 1, 1, 1, 2, 2, 3, 3, 4, 5])
+            self.available_station_types[new_station] = 1
+            self.stations[x][y] = new_station
         else:
             self.stations[x][y] = random.choice([1, 1, 1, 2, 3])
         self.draw_station(x, y)
@@ -257,3 +195,54 @@ class Stations:
             for j in range(len(self.colors[0])):
                 if color_index in self.colors[i][j]:
                     self.colors[i][j].remove(color_index)
+
+    def generate_passenger(self):
+        offset = random.randint(0, self.stations_cnt + 2)
+        cnt = 0
+        for i in range(len(self.stations)):
+            for j in range(len(self.stations[0])):
+                if self.stations[i][j]:
+                    if len(self.passengers[i][j]) == 6 or offset != 0:
+                        offset -= 1
+                    if len(self.passengers[i][j]) == 6:
+                            self.set_overfilled(cnt)
+                    else:
+                        available_passengers = [i for i in range(len(self.available_station_types))
+                                                if self.available_station_types[i]]
+                        available_passengers.remove(self.stations[i][j])
+                        new_passenger = random.choice(available_passengers)
+                        print("generated new passenger:", new_passenger)
+                        if new_passenger == 1:
+                            passenger = CirclePassenger(self.passengers_sprites)
+                        elif new_passenger == 2:
+                            passenger = RectanglePassenger(self.passengers_sprites)
+                        elif new_passenger == 3:
+                            passenger = TrianglePassenger(self.passengers_sprites)
+                        elif new_passenger == 4:
+                            passenger = PolygonPassenger(self.passengers_sprites)
+                        elif new_passenger == 5:
+                            passenger = StarPassenger(self.passengers_sprites)
+                        passenger.set_pos(len(self.passengers[i][j]), j, i)
+
+                        self.passengers[i][j].append(random.choice(available_passengers))
+                        return
+                    cnt += 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
