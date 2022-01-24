@@ -38,6 +38,7 @@ passengers_sprites = pygame.sprite.Group()
 
 def set_overfilled(i):
     print(len(stations_sprites), i)
+    print(list(stations_sprites))
     if not list(stations_sprites)[i].overfilled:
         list(stations_sprites)[i].overfilled = True
 
@@ -220,7 +221,7 @@ while True:
             stations_sprites = pygame.sprite.Group()
             train_sprites = pygame.sprite.Group()
             interface_sprites = pygame.sprite.Group()
-            train_sprites = pygame.sprite.Group()
+            passengers_sprites = pygame.sprite.Group()
 
             red_line.clear(panel)
             blue_line.clear(panel)

@@ -108,9 +108,9 @@ class Stations:
             y = random.choice(range(16, 20))
         self.stations[x][y] = start_stations[3]
 
-        self.duration = 6
+        self.duration = 7
         self.stations_cnt = 0
-        self.passenger_duration = 4
+        self.passenger_duration = 21
 
     def check(self, x, y):
         if x == 18 and 9 < y < 24:
@@ -198,20 +198,22 @@ class Stations:
 
     def generate_passenger(self):
         offset = random.randint(0, self.stations_cnt + 2)
-        cnt = 0
+
+        # print("offset:", offset)
         for i in range(len(self.stations)):
             for j in range(len(self.stations[0])):
                 if self.stations[i][j]:
-                    if len(self.passengers[i][j]) == 6 or offset != 0:
+                    # if len(self.passengers[i][j]) == 6:
+                    #         self.set_overfilled(cnt)
+
+                    if offset != 0:
                         offset -= 1
-                    if len(self.passengers[i][j]) == 6:
-                            self.set_overfilled(cnt)
-                    else:
+                    elif len(self.passengers[i][j]) != 6:
                         available_passengers = [i for i in range(len(self.available_station_types))
                                                 if self.available_station_types[i]]
                         available_passengers.remove(self.stations[i][j])
                         new_passenger = random.choice(available_passengers)
-                        print("generated new passenger:", new_passenger)
+                        # print("generated new passenger:", new_passenger)
                         if new_passenger == 1:
                             passenger = CirclePassenger(self.passengers_sprites)
                         elif new_passenger == 2:
@@ -225,9 +227,13 @@ class Stations:
                         passenger.set_pos(len(self.passengers[i][j]), j, i)
 
                         self.passengers[i][j].append(random.choice(available_passengers))
-                        return
-                    cnt += 1
 
+                        for station in self.all_sprites:
+                            if len(self.passengers[station.rect.y // 36][station.rect.x // 36]) == 6:
+                                station.overfilled = True
+
+                        offset = random.randint(0, self.stations_cnt + 2)
+                        return
 
 
 
